@@ -290,7 +290,7 @@ const matchPattern = <a, p extends Pattern<a>>(
 		if (t.set(t.any)(pattern)) {
 			if (!t.set(t.any)(value)) return false;
 
-			if (pattern.size() === 0) return value.size() === 0;
+			if (pattern.isEmpty()) return true;
 
 			if (pattern.size() === 1) {
 				const [subPattern] = [...Object.values(pattern)];
