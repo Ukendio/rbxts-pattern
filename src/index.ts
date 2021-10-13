@@ -315,38 +315,24 @@ const matchPattern = <a, p extends Pattern<a>>(
 		if (pattern === __.number) return typeIs(value, "number");
 	}
 
-	function deepEquals(a: object, b: object) {
-		if (typeOf(a) !== typeOf(b)) {
-			return false;
-		}
+	const b = value
 
-		if (typeOf(a) === "table") {
-			const visitedKeys = new Map<unknown, boolean>();
+	const fuzzy_assert = (a: defined, b: defined) => {
+		if (a == b) return true
+	
+		if (!typeIs(a, "table") || !typeIs(b, "table")) return false;
 
-			for (const [k, v] of pairs(a)) {
-				visitedKeys.set(k, true);
-
-				const ok = deepEquals(v, b[k as never]);
-				if (!ok) {
-					return false;
-				}
+		for (const [k, v] of pairs(a)) {
+			if (v == b[k as never]) {
+				const ok = fuzzy_assert(v, b[k as never])
+	
+				if (!ok) return false
 			}
-
-			for (const [k, v] of pairs(b)) {
-				if (!visitedKeys.get(k)) {
-					const ok = deepEquals(v, a[k as never]);
-					if (!ok) {
-						return false;
-					}
-				}
-			}
-
-			return true;
 		}
+	
+		return true;
+	};
 
-		if (a === b) return true;
-
-		return false;
-	}
-	return deepEquals(value as never, pattern as never);
+	return fuzzy_assert(value, pattern);
 };
+
