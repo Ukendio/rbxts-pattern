@@ -315,16 +315,14 @@ const matchPattern = <a, p extends Pattern<a>>(
 		if (pattern === __.number) return typeIs(value, "number");
 	}
 
-	const b = value
-
-	const fuzzy_assert = (a: defined, b: defined) => {
+	const fuzzy_assert = (a: unknown, b: unknown) => {
 		if (a == b) return true
 	
 		if (!typeIs(a, "table") || !typeIs(b, "table")) return false;
 
 		for (const [k, v] of pairs(a)) {
 			if (v == b[k as never]) {
-				const ok = fuzzy_assert(v, b[k as never])
+				const ok = fuzzy_assert(v as a, b[k as never])
 	
 				if (!ok) return false
 			}
