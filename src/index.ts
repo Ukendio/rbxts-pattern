@@ -10,11 +10,12 @@ import type {
 	GuardFunction,
 } from "./types/Pattern";
 
-import type { Unset, PickReturnValue, Match } from "./types/Match";
+import type { Unset, PickReturnValue, Match, MatchedValue } from "./types/Match";
 
 import { __, PatternType } from "./PatternType";
 import Object from "@rbxts/object-utils";
 import { t } from "@rbxts/t";
+import { InvertPattern } from "types/InvertPattern";
 
 export const when = <a, b extends a = never>(predicate: GuardFunction<a, b>): GuardPattern<a, b> => ({
 	"@rbxts-pattern/__patternKind": PatternType.Guard,
@@ -40,6 +41,13 @@ export function _select<k extends string>(key?: k): AnonymousSelectPattern | Nam
 				"@rbxts-pattern/__key": key,
 		  };
 }
+
+type AnyConstructor = new (...args: Array<unknown>) => unknown;
+export function isInstanceOf<T extends AnyConstructor>(classConstructor: T) {
+	return (val: unknown): val is InstanceType<T> => val instanceof classConstructor
+}
+
+export const instanceOf = <T extends AnyConstructor>(classConstructor: T) => when(isInstanceOf(classConstructor))
 
 /**
  * # Pattern matching
@@ -315,22 +323,63 @@ const matchPattern = <a, p extends Pattern<a>>(
 		if (pattern === __.number) return typeIs(value, "number");
 	}
 
-	const fuzzy_assert = (a: unknown, b: unknown) => {
-		if (a == b) return true
-	
-		if (!typeIs(a, "table") || !typeIs(b, "table")) return false;
+	function deepEquals(a: object, b: object) {
+		if (typeOf(a) !== typeOf(b)) return false;
+		
 
-		for (const [k, v] of pairs(a)) {
-			if (v == b[k as never]) {
-				const ok = fuzzy_assert(v as a, b[k as never])
-	
-				if (!ok) return false
+		if (typeOf(a) === "table") {
+			for (const [k, v] of pairs(a)) {
+				const par = b[k as never]
+				const [a1, b1] = [deepEquals(v, par), deepEquals(par, v)] as LuaTuple<[boolean, boolean]>
+
+				if (!a1 || !b1) return false;
 			}
-		}
-	
-		return true;
-	};
 
-	return fuzzy_assert(value, pattern);
+			return true
+		}
+
+		if (a === b) return true;
+
+		return false;
+	}
+	return deepEquals(value as never, pattern as never);
 };
 
+/**
+ * Helper function taking a pattern and returning a **type guard** function telling
+ * us whether or not a value matches the pattern.
+ *
+ * @param pattern the Pattern the value should match
+ * @returns a function taking the value and returning whether or not it matches the pattern.
+ */
+export function isMatching<p extends Pattern<unknown>>(
+  pattern: p
+): (value: unknown) => value is MatchedValue<unknown, InvertPattern<p>>;
+/**
+ * **type guard** function taking a pattern and a value and returning a boolean telling
+ * us whether or not the value matches the pattern.
+ *
+ * @param pattern the Pattern the value should match
+ * @param value
+ * @returns a boolean telling whether or not the value matches the pattern.
+ */
+export function isMatching<p extends Pattern<unknown>>(
+  pattern: p,
+  value: unknown
+): value is MatchedValue<unknown, InvertPattern<p>>;
+export function isMatching<p extends Pattern<unknown>>(
+  ...args: [pattern: p, value?: unknown]
+): boolean | ((vale: unknown) => boolean) {
+  if (args.length === 1) {
+    const [pattern] = args;
+    return (value: unknown): value is MatchedValue<unknown, InvertPattern<p>> =>
+      matchPattern(pattern, value, () => {});
+  }
+  if (args.length === 2) {
+    const [pattern, value] = args;
+    return matchPattern(pattern, value, () => {});
+  }
+
+  throw `isMatching wasn't given enough arguments: expected 1 or 2, received ${args.length}.`
+  
+}

@@ -12,15 +12,8 @@ export type GuardValue<F> = F extends (value: unknown) => value is infer b
 
 export type GuardFunction<a, b extends a> = ((value: a) => value is b) | ((value: a) => boolean);
 
-/**
- * Using @deprecated here to dissuade people from using them inside there patterns.
- * Theses properties should be used by ts-pattern's internals only.
- */
-
 export type GuardPattern<a, b extends a = never> = {
-	/** @deprecated This property should only be used by ts-pattern's internals. */
 	"@rbxts-pattern/__patternKind": PatternType.Guard;
-	/** @deprecated This property should only be used by ts-pattern's internals. */
 	"@rbxts-pattern/__when": GuardFunction<a, b>;
 };
 
