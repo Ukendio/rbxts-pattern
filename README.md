@@ -57,8 +57,6 @@ npm install @rbxts/rbxts-pattern
 
 # Documentation
 
-- [Code Sandbox Examples](#code-sandbox-examples)
-- [Getting Started](#getting-started)
 - [API Reference](#api-reference)
   - [`match`](#match)
   - [`.with`](#with)
