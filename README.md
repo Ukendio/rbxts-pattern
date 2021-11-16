@@ -5,18 +5,6 @@ The exhaustive Pattern Matching library for <a href="https://www.roblox-ts.com">
 with smart type inference.
 </p>
 
-<p align="center">
-  <a href="https://www.npmjs.com/package/@rbxts/rbxts-pattern">
-    <img src="https://img.shields.io/npm/dm/ts-pattern.svg" alt="downloads per month" height="18">
-  </a>
-  <a href="https://www.npmjs.com/package/@rbxts/rbxts-pattern">
-    <img src="https://img.shields.io/npm/v/ts-pattern.svg" alt="npm version" height="18">
-  </a>
-  <a href="https://www.npmjs.com/package/@rbxts/rbxts-pattern">
-    <img src="https://img.shields.io/npm/l/ts-pattern.svg" alt="license" height="18">
-  </a>
-</p>
-
 ```ts
 import { match, _select } from "@rbxts/rbxts-pattern";
 import { HttpService } from "@rbxts/services";

@@ -44,10 +44,10 @@ export function _select<k extends string>(key?: k): AnonymousSelectPattern | Nam
 
 type AnyConstructor = new (...args: Array<unknown>) => unknown;
 export function isInstanceOf<T extends AnyConstructor>(classConstructor: T) {
-	return (val: unknown): val is InstanceType<T> => val instanceof classConstructor
+	return (val: unknown): val is InstanceType<T> => val instanceof classConstructor;
 }
 
-export const instanceOf = <T extends AnyConstructor>(classConstructor: T) => when(isInstanceOf(classConstructor))
+export const instanceOf = <T extends AnyConstructor>(classConstructor: T) => when(isInstanceOf(classConstructor));
 
 /**
  * # Pattern matching
@@ -282,8 +282,8 @@ const matchPattern = <a, p extends Pattern<a>>(
 
 			// Tuple pattern
 			return pattern.size() === value.size()
-				? ((pattern as unknown) as []).every((subPattern, i) =>
-						matchPattern(subPattern, ((value as unknown) as [])[i], _select),
+				? (pattern as unknown as []).every((subPattern, i) =>
+						matchPattern(subPattern, (value as unknown as [])[i], _select),
 				  )
 				: false;
 		}
@@ -325,17 +325,16 @@ const matchPattern = <a, p extends Pattern<a>>(
 
 	function deepEquals(a: object, b: object) {
 		if (typeOf(a) !== typeOf(b)) return false;
-		
 
 		if (typeOf(a) === "table") {
 			for (const [k, v] of pairs(a)) {
-				const par = b[k as never]
-				const [a1, b1] = [deepEquals(v, par), deepEquals(par, v)] as LuaTuple<[boolean, boolean]>
+				const par = b[k as never];
+				const [a1, b1] = [deepEquals(v, par), deepEquals(par, v)] as LuaTuple<[boolean, boolean]>;
 
 				if (!a1 || !b1) return false;
 			}
 
-			return true
+			return true;
 		}
 
 		if (a === b) return true;
@@ -353,7 +352,7 @@ const matchPattern = <a, p extends Pattern<a>>(
  * @returns a function taking the value and returning whether or not it matches the pattern.
  */
 export function isMatching<p extends Pattern<unknown>>(
-  pattern: p
+	pattern: p,
 ): (value: unknown) => value is MatchedValue<unknown, InvertPattern<p>>;
 /**
  * **type guard** function taking a pattern and a value and returning a boolean telling
@@ -364,22 +363,21 @@ export function isMatching<p extends Pattern<unknown>>(
  * @returns a boolean telling whether or not the value matches the pattern.
  */
 export function isMatching<p extends Pattern<unknown>>(
-  pattern: p,
-  value: unknown
+	pattern: p,
+	value: unknown,
 ): value is MatchedValue<unknown, InvertPattern<p>>;
 export function isMatching<p extends Pattern<unknown>>(
-  ...args: [pattern: p, value?: unknown]
+	...args: [pattern: p, value?: unknown]
 ): boolean | ((vale: unknown) => boolean) {
-  if (args.length === 1) {
-    const [pattern] = args;
-    return (value: unknown): value is MatchedValue<unknown, InvertPattern<p>> =>
-      matchPattern(pattern, value, () => {});
-  }
-  if (args.length === 2) {
-    const [pattern, value] = args;
-    return matchPattern(pattern, value, () => {});
-  }
+	if (args.length === 1) {
+		const [pattern] = args;
+		return (value: unknown): value is MatchedValue<unknown, InvertPattern<p>> =>
+			matchPattern(pattern, value, () => {});
+	}
+	if (args.length === 2) {
+		const [pattern, value] = args;
+		return matchPattern(pattern, value, () => {});
+	}
 
-  throw `isMatching wasn't given enough arguments: expected 1 or 2, received ${args.length}.`
-  
+	throw `isMatching wasn't given enough arguments: expected 1 or 2, received ${args.length}.`;
 }
